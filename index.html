@@ -1,1 +1,342 @@
 
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X Archive tweets.js → シンプルJSON変換ツール</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #1a2332;
+      --border: #2f3b4a;
+      --text: #e7e9ea;
+      --muted: #8b98a5;
+      --accent: #1d9bf0;
+      --accent-hover: #1a8cd8;
+      --success: #00ba7c;
+      --error: #f4212e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+    input[type="text"],
+    input[type="file"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input[type="text"]:focus {
+      border-color: var(--accent);
+    }
+    input[type="file"] {
+      padding: 0.6rem;
+      cursor: pointer;
+    }
+    input[type="file"]::file-selector-button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.4rem 0.9rem;
+      border-radius: 6px;
+      margin-right: 0.75rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .field { margin-bottom: 1.25rem; }
+    .field:last-child { margin-bottom: 0; }
+    button {
+      width: 100%;
+      padding: 0.9rem 1.25rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 9999px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button:hover:not(:disabled) { background: var(--accent-hover); }
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 1.25rem;
+      padding: 0.9rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .status.info { display: block; background: rgba(29,155,240,0.12); color: var(--accent); }
+    .status.success { display: block; background: rgba(0,186,124,0.12); color: var(--success); }
+    .status.error { display: block; background: rgba(244,33,46,0.12); color: var(--error); }
+    .preview {
+      margin-top: 1rem;
+      max-height: 220px;
+      overflow-y: auto;
+      font-size: 0.8rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: var(--muted);
+      display: none;
+    }
+    .hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+    }
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>X Archive → シンプルJSON</h1>
+    <p class="subtitle">tweets.js をアップロードし、個人情報を除いた簡易JSONを生成します（すべてブラウザ内で処理）</p>
+
+    <div class="card">
+      <div class="field">
+        <label for="fileInput">tweets.js（または tweets-partN.js）</label>
+        <input type="file" id="fileInput" accept=".js,text/javascript,application/javascript">
+        <p class="hint">data/tweets.js または tweets-part*.js を選択。複数ファイルがある場合は1つずつ、または結合してから。</p>
+      </div>
+
+      <div class="field">
+        <label for="username">ユーザー名（@なし）</label>
+        <input type="text" id="username" placeholder="例: elonmusk" autocomplete="off" spellcheck="false">
+        <p class="hint">出力ファイル名と表示用。アーカイブ内の投稿はすべて対象アカウントのものです。</p>
+      </div>
+
+      <button id="convertBtn" disabled>変換してダウンロード</button>
+
+      <div id="status" class="status"></div>
+      <pre id="preview" class="preview"></pre>
+    </div>
+
+    <footer>
+      ローカル処理のみ・データは外部に送信されません<br>
+      出力形式: [{ "submitted_id", "send_date", "send_message" }, ...]
+    </footer>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const usernameInput = document.getElementById('username');
+    const convertBtn = document.getElementById('convertBtn');
+    const statusEl = document.getElementById('status');
+    const previewEl = document.getElementById('preview');
+
+    let fileContent = null;
+
+    function setStatus(type, msg) {
+      statusEl.className = 'status ' + type;
+      statusEl.textContent = msg;
+    }
+
+    function updateButton() {
+      convertBtn.disabled = !(fileContent && usernameInput.value.trim());
+    }
+
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) {
+        fileContent = null;
+        updateButton();
+        return;
+      }
+      setStatus('info', '読み込み中…');
+      try {
+        fileContent = await file.text();
+        setStatus('info', `読み込み完了: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+        previewEl.style.display = 'none';
+      } catch (err) {
+        fileContent = null;
+        setStatus('error', 'ファイルの読み込みに失敗しました: ' + err.message);
+      }
+      updateButton();
+    });
+
+    usernameInput.addEventListener('input', updateButton);
+
+    /**
+     * tweets.js / tweets-partN.js のラッパーを除去してJSON配列を取得
+     * 対応例:
+     *   window.YTD.tweets.part0 = [ ... ];
+     *   window.YTD.tweet.part0 = [ ... ];
+     */
+    function parseTweetsJs(raw) {
+      let text = raw.replace(/^\uFEFF/, '').trim();
+
+      // 先頭の window.YTD.xxx.partN = を除去
+      const prefixRe = /^\s*window\s*\.\s*YTD\s*\.\s*(?:tweets?|tweet)\s*\.\s*part\d+\s*=\s*/i;
+      if (prefixRe.test(text)) {
+        text = text.replace(prefixRe, '');
+      } else {
+        // 念のため汎用的に先頭代入を除去
+        const generic = text.match(/^\s*[^=]+=\s*(\[[\s\S]*)/);
+        if (generic) text = generic[1];
+      }
+
+      // 末尾の ; と余分な空白を除去
+      text = text.replace(/;\s*$/, '').trim();
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error('JSON解析に失敗しました。ファイル形式を確認してください。\n' + e.message);
+      }
+
+      if (!Array.isArray(data)) {
+        throw new Error('配列形式ではありません。');
+      }
+      return data;
+    }
+
+    /**
+     * created_at ("Mon Jan 15 10:15:00 +0000 2024") → ISO 8601
+     */
+    function parseCreatedAt(str) {
+      if (!str) return null;
+      const d = new Date(str);
+      if (isNaN(d.getTime())) return str; // パース失敗時は元文字列
+      return d.toISOString();
+    }
+
+    function extractTweet(item) {
+      // { tweet: { ... } } または直接ツイートオブジェクト
+      const t = item.tweet || item;
+      if (!t) return null;
+
+      const text = t.full_text ?? t.text ?? '';
+      const created = t.created_at ?? '';
+
+      return {
+        send_date: parseCreatedAt(created),
+        send_message: String(text),
+        _sortKey: created ? new Date(created).getTime() : 0
+      };
+    }
+
+    convertBtn.addEventListener('click', () => {
+      const username = usernameInput.value.trim().replace(/^@/, '');
+      if (!fileContent || !username) return;
+
+      convertBtn.disabled = true;
+      setStatus('info', '変換中…');
+
+      try {
+        const rawItems = parseTweetsJs(fileContent);
+        const tweets = [];
+
+        for (const item of rawItems) {
+          const extracted = extractTweet(item);
+          if (extracted && extracted.send_message !== undefined) {
+            tweets.push(extracted);
+          }
+        }
+
+        // 古い順にソート
+        tweets.sort((a, b) => a._sortKey - b._sortKey);
+
+        // 連番付与・個人情報除去
+        const simplified = tweets.map((t, i) => ({
+          submitted_id: i + 1,
+          send_date: t.send_date,
+          send_message: t.send_message
+        }));
+
+        if (simplified.length === 0) {
+          setStatus('error', '投稿が1件も見つかりませんでした。');
+          convertBtn.disabled = false;
+          return;
+        }
+
+        // プレビュー（先頭3件）
+        const previewSample = simplified.slice(0, 3);
+        previewEl.style.display = 'block';
+        previewEl.textContent = JSON.stringify(previewSample, null, 2)
+          + (simplified.length > 3 ? `\n… 他 ${simplified.length - 3} 件` : '');
+
+        // ダウンロード
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const filename = `fx-${yyyy}-${mm}-${dd}.json`;
+
+        const blob = new Blob([JSON.stringify(simplified, null, 2)], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        setStatus('success',
+          `完了: ${simplified.length} 件を抽出しました（@${username}）\n` +
+          `ファイル: ${filename}`
+        );
+      } catch (err) {
+        console.error(err);
+        setStatus('error', err.message || String(err));
+      } finally {
+        convertBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
