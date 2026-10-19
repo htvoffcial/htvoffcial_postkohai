@@ -1,0 +1,59 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: gainsboro;
+  color: #444;
+  font-family: ヒラギノ角ゴ ProN, ヒラギノ角ゴ W3, Noto Sans JP, system-ui, -apple-system, "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif;
+  line-height: 1.7;
+}
+
+.message_container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 12px;
+}
+
+.message_box {
+  background: #fff;
+  border-radius: 3px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+}
+
+.message_box_header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.message_box_header_usericon {
+  width: 40px;
+  height: 40px;
+  border-radius: 3px;
+  object-fit: cover;
+  background: gainsboro;
+}
+
+.message_box_header_username {
+  font-weight: 700;
+  color: #444;
+}
+
+.message_box_content {
+  color: #444;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.message_box_date {
+  margin-top: 8px;
+  color: #444;
+  font-size: 12px;
+  text-align: right;
+}
