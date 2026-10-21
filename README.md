@@ -1,6 +1,6 @@
 # X Archive Website Exchange Tool
 
-<img src=“assets/PostKõhai!.png” width=“300”>
+<img src=“assets/PostKohai.png” width=“300”>
 ## Abstract
 Whether you delete your X account or make it private, you may still want to keep your public conversation data online. 
 This tool analyzes your archived X data (`tweets.js`), converts it into a website with a timeline UI, and immediately deploys it to the internet!
