@@ -6,6 +6,11 @@ This tool analyzes your archived X data (`tweets.js`), converts it into a websit
 
 ## How it works
 
+## Important Notice
+> [!WARNING]
+> **Please inspect your files carefully before pushing.**
+> Never push the entire X archive ZIP file or folder to GitHub, as these files may contain sensitive personal information.
+
 ## Features
 It is generally a formatting tool that utilizes GitHub Actions.
 However, this project does not use GitHub Actions.
