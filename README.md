@@ -7,14 +7,16 @@ Whether you delete your X account or make it private, you may still want to keep
 This tool analyzes your archived X data (`tweets.js`), converts it into a website with a timeline UI, and immediately deploys it to the internet!
 
 ## How it works
-1. **Data Loading:** Loads the formatted data (`fx-yyyy-mm-dd.json`, `fx-user.json`) from the repository.
-2. **Conversion & Optimization:** Extracts the data, converts it into HTML, and compresses images into the AVIF format for high efficiency.
-3. **Deployment:** Finally, deploys your website to Cloudflare's global network.
+1. Data Loading: Loads the formatted data (`fx-yyyy-mm-dd.json`, `fx-user.json`) from the repository.
+2. Conversion & Optimization: Extracts the data, converts it into HTML, and compresses images into the AVIF format for high efficiency.
+3. Deployment: Finally, deploys your website to Cloudflare's global network.
+JSON format tool be this repository. utilize it!
 
 ## Important Notice
 > [!WARNING]
 > **Please inspect your files carefully before pushing.**
 > Never push the entire X archive ZIP file or folder to GitHub, as these files may contain sensitive personal information.
+> Always review the converted JSON files before publishing them.
 
 ## Features
 It is generally a formatting tool that utilizes GitHub Actions.
