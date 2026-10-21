@@ -22,22 +22,18 @@ However, this project does not use GitHub Actions.
 Instead, it utilizes Cloudflare Pages build commands.
 Therefore, you can build a professional, robust, and rich user interface with just a single command.
 
-## GetStarted/Installation Guide
-1.dowsload the X archive data from https://x.com/settings/download_your_data
-
-2.extend zip and find a “tweets.js”
-
-3.upload to “tweets.js” to “tools/tweets-js_exchanger.html” and download “fx-yyyy-mm-dd.json”.
-
-4.make a “fx-user.json” way to read specification.
-
-5.Repository connect to Cloudflare Pages and build command following and set the build output to “dist” and finally push save.
+## Getting Started
+1. Download the X archive data from https://x.com/settings/download_your_data.
+2. Extract zip and find a “tweets.js”.
+3. upload to “tweets.js” to “tools/tweets-js_exchanger.html” and download “fx-yyyy-mm-dd.json”.
+4. make a “fx-user.json”. I suggest read a following Specification.
+5. Repository connect to Cloudflare Pages and build command type following and set the build output to “dist” and finally push save.
 
 ```bash
 npm i --no-save --no-audit --no-fund sharp html-minifier-terser && node -e 'const fs=require("fs"),sharp=require("sharp"),{minify}=require("html-minifier-terser");(async()=>{const u=JSON.parse(fs.readFileSync("fx-user.json","utf8")).user;const f=fs.readdirSync(".").filter(n=>/^fx-\d{4}-\d{2}-\d{2}\.json$/.test(n)).sort().pop();const p=JSON.parse(fs.readFileSync(f,"utf8")).sort((a,b)=>b.submitted_id-a.submitted_id);fs.mkdirSync("dist",{recursive:true});await sharp(u.path.icon).resize(96,96,{fit:"cover"}).avif({quality:20,effort:9}).toFile("dist/fx-icon.avif");const e=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>");const d=s=>new Date(s).toLocaleString("ja-JP",{timeZone:"Asia/Tokyo"});const h=`<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${e(u.text.name)}のアーカイブ | X | 歴史的資料</title><link rel="stylesheet" href="sttx.css"></head><body><div class="message_container">${p.map(m=>`<div class="message_box"><div class="message_box_header"><img src="fx-icon.avif" alt="" width="96" height="96" class="message_box_header_usericon"><div class="message_box_header_username">${e(u.text.name)}</div></div><div class="message_box_content">${e(m.send_message)}</div><div class="message_box_date">${d(m.send_date)}</div></div>`).join("")}</div></body></html>`;fs.writeFileSync("dist/index.html",await minify(h,{collapseWhitespace:true,removeComments:true,removeAttributeQuotes:true,minifyCSS:true}));if(fs.existsSync("sttx.css"))fs.copyFileSync("sttx.css","dist/sttx.css")})()'
 ```
 
-It’s all!Enjoy your X Archive on website!
+That’s all! Enjoy your X Archive on website!
 
 ## Specification
 
