@@ -21,6 +21,8 @@ It is generally a formatting tool that utilizes GitHub Actions.
 However, this project does not use GitHub Actions.
 Instead, it utilizes Cloudflare Pages build commands.
 Therefore, you can build a professional, robust, and rich user interface with just a single command.
+Also design is very optimized for Japanese🇯🇵,font primary is “ヒラギノ角ゴ ProN” secondary is “Noto Sans JP”!
+
 
 ## Getting Started
 1. Download the X archive data from https://x.com/settings/download_your_data.
