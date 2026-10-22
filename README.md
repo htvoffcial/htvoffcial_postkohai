@@ -30,7 +30,7 @@ Also design is very optimized for Japanese🇯🇵,font primary is “ヒラギ�
 ## Getting Started
 1. Download the X archive data from https://x.com/settings/download_your_data.
 2. Extract zip and find a “tweets.js”.
-3. upload to “tweets.js” to “tools/tweets-js_exchanger.html” and download “fx-yyyy-mm-dd.json”.
+3. upload to “tweets.js” to “[tools/tweets-js_exchanger.html](https://postkohai.haruharutv.jp/tools/tweets-js_exchanger.html)” and download “fx-yyyy-mm-dd.json”.
 4. make a “fx-user.json”. I suggest read a following Specification.
 5. Repository connect to Cloudflare Pages and build command type following and set the build output to “dist” and finally push save.
 
